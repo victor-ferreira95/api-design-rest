@@ -24,7 +24,7 @@ router.get("/:productId", async (req, res) => {
   res.json(product);
 });
 
-router.post("/:productId", async (req, res) => {
+router.patch("/:productId", async (req, res) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.updateProduct({
@@ -67,7 +67,7 @@ router.get("/", async (req, res) => {
   res.json({ products, total });
 });
 
-router.get("/listProducts.csv", async (req, res) => {
+router.get("/products.csv", async (req, res) => {
   const productService = await createProductService();
   const {
     page = 1,
