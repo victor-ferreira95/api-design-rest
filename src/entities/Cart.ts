@@ -14,12 +14,16 @@ export class Cart {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  @Generated("uuid")
+  uuid:string 
+
   @OneToMany(() => CartItem, (cartItem) => cartItem.product)
   items: CartItem[];
 
   @ManyToOne(() => Customer)
   customer: Customer | null;
-
+               
   @Column()
   createdAt: Date;
 }
