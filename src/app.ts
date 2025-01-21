@@ -11,21 +11,22 @@ import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 import loginRoutes from "./routes/session-auth.routes";
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import { createCustomerService } from "./services/customer.service";
-import session from "express-session";
+// import session from "express-session";
 import jwt from "jsonwebtoken";
+import { Resource } from "./http/resource";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(
-  session({
-    secret: "123",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  })
-);
+// app.use(
+//   session({
+//     secret: "123",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: { secure: false },
+//   })
+// );
 
 // app.use(async (req, res, next) => {
 //   const protectedRoutes = ["/admin", "/orders"];
@@ -51,7 +52,7 @@ app.use(async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return res.status(200).send({message: "Unauthorized"});
+      return res.status(200).send({ message: "Unauthorized" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -61,7 +62,7 @@ app.use(async (req, res, next) => {
       //@ts-expect-error
       req.userId = decoded.sub;
     } catch (e) {
-      return res.status(200).send({message: "Unauthorized"});
+      return res.status(200).send({ message: "Unauthorized" });
     }
   }
 
@@ -82,6 +83,14 @@ app.use("/admin/categories", adminCategoryRoutes);
 app.get("/", async (req, res) => {
   await createDatabaseConnection();
   res.send("Hello World!");
+});
+
+app.use(async (result: Resource, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (result instanceof Resource) {
+    return res.json(result.toJson());
+  }
+
+  next(result);
 });
 
 app.listen(PORT, async () => {

@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { createProductService } from "../../services/product.service";
+import { Resource, ResourceCollection } from "../../http/resource";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.createProduct(
@@ -13,29 +14,36 @@ router.post("/", async (req, res) => {
     price,
     categoryIds
   );
-  res.json(product);
+
+  const resource = new Resource(product)
+  next(resource)
 });
 
-router.get("/:productId", async (req, res) => {
+router.get("/:productId", async (req, res, next) => {
   const productService = await createProductService();
   const product = await productService.getProductById(
-+req.params.productId 
+    +req.params.productId
   );
-  res.json(product);
+
+  const resource = new Resource(product)
+  next(resource)
 });
 
-router.patch("/:productId", async (req, res) => {
+router.patch("/:productId", async (req, res, next) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.updateProduct({
-    id:+req.params.productId ,
+    id: +req.params.productId,
     name,
     slug,
     description,
     price,
     categoryIds,
   });
-  res.json(product);
+
+
+  const resource = new Resource(product)
+  next(resource)
 });
 
 router.delete("/:productId", async (req, res) => {
@@ -45,7 +53,7 @@ router.delete("/:productId", async (req, res) => {
   res.send({ message: "Product deleted successfully" });
 });
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   const productService = await createProductService();
   const {
     page = 1,
@@ -64,7 +72,15 @@ router.get("/", async (req, res) => {
       categories_slug,
     },
   });
-  res.json({ products, total });
+
+  const collections = new ResourceCollection(products, {
+    paginationData: {
+      total,
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    }
+  })
+  next(collections)
 });
 
 router.get("/products.csv", async (req, res) => {
