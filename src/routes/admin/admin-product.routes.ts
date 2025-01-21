@@ -15,6 +15,7 @@ router.post("/", async (req, res, next) => {
     categoryIds
   );
 
+  res.set("Location", `/admin/products/${product.id}`).status(201)
   const resource = new Resource(product)
   next(resource)
 });
@@ -50,7 +51,7 @@ router.delete("/:productId", async (req, res) => {
   const productService = await createProductService();
   const { productId } = req.params;
   await productService.deleteProduct(+productId);
-  res.send({ message: "Product deleted successfully" });
+  res.status(204).send();
 });
 
 router.get("/", async (req, res, next) => {
