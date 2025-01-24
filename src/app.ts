@@ -21,28 +21,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-// app.use(
-//   session({
-//     secret: "123",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: { secure: false },
-//   })
-// );
+app.use(express.urlencoded({ extended: true }));
 
-// app.use(async (req, res, next) => {
-//   const protectedRoutes = ["/admin", "/orders"];
-//   const isProtectedRoute = protectedRoutes.some((route) =>
-//     req.url.startsWith(route)
-//   );
+app.use(async (req, res, next) => {
+  if (!req.headers["content-type"]) {
+    return next();
+  }
 
-//   //@ts-expect-error
-//   if (isProtectedRoute && !req.session.userId) {
-//     return res.status(200).send("Unauthorized");
-//   }
+  const allowedContentTypes = [
+    "application/json",
+    "application/x-www-form-urlencoded",
+  ];
 
-//   next();
-// });
+  if (!allowedContentTypes.includes(req.headers["content-type"])) {
+    return res.status(415).json({
+      title: "Unsupported Media Type",
+      status: 415,
+      detail:
+        "Unsupported Media Type. Please use application/json or application/x-www-form-urlencoded",
+    });
+  }
+
+  next();
+});
 
 app.use(async (req, res, next) => {
   const protectedRoutes = ["/admin", "/orders"];
