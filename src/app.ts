@@ -91,8 +91,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   if (!(err instanceof Error)) {
     return next(err);
   }
-
-  console.log(err);
+  console.error(err);
 
   if (err instanceof SyntaxError) {
     return res.status(400).send({
@@ -123,6 +122,12 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
       }
     });
   }
+
+  res.status(500).send({
+    title: "Internal Server Error",
+    status: 500,
+    detail: "An unexpected error occurred",
+  })
 });
 
 app.use(async (result: Resource, req: express.Request, res: express.Response, next: express.NextFunction) => {
