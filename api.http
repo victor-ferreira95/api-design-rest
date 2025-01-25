@@ -175,10 +175,6 @@ GET http://localhost:3000/products?page=1&limit=10
 GET http://localhost:3000/admin/products?page=1&limit=10
 Authorization: Bearer {{ token }}
 
-### Get csv of products
-GET http://localhost:3000/admin/products.csv
-Authorization: Bearer {{ token }}
-
 ### 👉👉👉 Cart Endpoints 👈👈👈
 
 ### Create a cart
