@@ -1,10 +1,23 @@
 import { Router } from "express";
 import { createProductService } from "../../services/product.service";
 import { Resource, ResourceCollection } from "../../http/resource";
+import cors from "cors";
+import { defaultCorsOptions } from "../../http/cors";
+
 
 const router = Router();
 
-router.post("/", async (req, res, next) => {
+const corsCollections = cors({
+  ...defaultCorsOptions,
+  methods: ['GET', 'POST']
+});
+
+const corsItem = cors({
+  ...defaultCorsOptions,
+  methods: ['GET', 'PATCH', 'DELETE']
+});
+
+router.post("/", corsCollections, async (req, res, next) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   try {
@@ -24,7 +37,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.get("/:productId", async (req, res, next) => {
+router.get("/:productId", corsItem, async (req, res, next) => {
   const productService = await createProductService();
   const product = await productService.getProductById(
     +req.params.productId
@@ -43,7 +56,7 @@ router.get("/:productId", async (req, res, next) => {
   next(resource)
 });
 
-router.patch("/:productId", async (req, res, next) => {
+router.patch("/:productId", corsItem, async (req, res, next) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.updateProduct({
@@ -60,14 +73,14 @@ router.patch("/:productId", async (req, res, next) => {
   next(resource)
 });
 
-router.delete("/:productId", async (req, res) => {
+router.delete("/:productId", corsItem, async (req, res) => {
   const productService = await createProductService();
   const { productId } = req.params;
   await productService.deleteProduct(+productId);
   res.status(204).send();
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", corsCollections, async (req, res, next) => {
   const productService = await createProductService();
   const {
     page = 1,
@@ -87,7 +100,7 @@ router.get("/", async (req, res, next) => {
     },
   });
 
-  if (!req.headers['accept'] || req.headers['accept'] === 'application/json') {
+  if (!req.headers['accept'] || req.headers['accept'] === '*/*' || req.headers['accept'] === 'application/json') {
     const collections = new ResourceCollection(products, {
       paginationData: {
         total,
@@ -108,11 +121,14 @@ router.get("/", async (req, res, next) => {
     return res.send(csv);
   }
 
-  return res.status(406).json({
-    title: "Not Acceptable",
-    status: 406,
-    detail: `Not Acceptable request format ${req.headers['Accept']}. Accept application/json or text/csv`,
-  });
+  // return res.status(406).json({
+  //   title: "Not Acceptable",
+  //   status: 406,
+  //   detail: `Not Acceptable request format ${req.headers['Accept']}. Accept application/json or text/csv`,
+  // });
 });
+
+router.options("/", corsCollections);
+router.options("/:productId", corsItem);
 
 export default router;

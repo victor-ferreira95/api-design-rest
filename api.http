@@ -122,6 +122,11 @@ Authorization: Bearer {{ token }}
 
 ### 👉👉👉 Product Endpoints 👈👈👈
 
+### OPTIONS /admin/products
+OPTIONS http://localhost:3000/admin/products/2
+
+###
+
 # @name createProduct
 POST http://localhost:3000/admin/products
 Content-Type: application/json
