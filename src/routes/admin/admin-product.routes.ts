@@ -30,7 +30,25 @@ router.post("/", corsCollections, async (req, res, next) => {
     );
 
     res.set("Location", `/admin/products/${product.id}`).status(201)
-    const resource = new Resource(product)
+    const resource = new Resource(product, {
+      _link: {
+        self: {
+          href: `/admin/products/${product.id}`,
+          method: "GET",
+          type: "application/json"
+        },
+        update: {
+          href: `/admin/products/${product.id}`,
+          method: "PATCH",
+          type: "application/json"
+        },
+        delete: {
+          href: `/admin/products/${product.id}`,
+          method: "DELETE",
+          type: "application/json"
+        }
+      }
+    })
     next(resource)
   } catch (e) {
     next(e)
