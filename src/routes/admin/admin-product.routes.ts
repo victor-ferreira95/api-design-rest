@@ -3,6 +3,7 @@ import { createProductService } from "../../services/product.service";
 import { Resource, ResourceCollection } from "../../http/resource";
 import cors from "cors";
 import { defaultCorsOptions } from "../../http/cors";
+import { ProductResource, ProductResourceCollection } from "../../http/product-resource";
 
 
 const router = Router();
@@ -30,25 +31,7 @@ router.post("/", corsCollections, async (req, res, next) => {
     );
 
     res.set("Location", `/admin/products/${product.id}`).status(201)
-    const resource = new Resource(product, {
-      _link: {
-        self: {
-          href: `/admin/products/${product.id}`,
-          method: "GET",
-          type: "application/json"
-        },
-        update: {
-          href: `/admin/products/${product.id}`,
-          method: "PATCH",
-          type: "application/json"
-        },
-        delete: {
-          href: `/admin/products/${product.id}`,
-          method: "DELETE",
-          type: "application/json"
-        }
-      }
-    })
+    const resource = new ProductResource(product, req)
     next(resource)
   } catch (e) {
     next(e)
@@ -70,7 +53,7 @@ router.get("/:productId", corsItem, async (req, res, next) => {
     return
   }
 
-  const resource = new Resource(product)
+  const resource = new ProductResource(product, req)
   next(resource)
 });
 
@@ -87,7 +70,7 @@ router.patch("/:productId", corsItem, async (req, res, next) => {
   });
 
 
-  const resource = new Resource(product)
+  const resource = new ProductResource(product!, req)
   next(resource)
 });
 
@@ -119,7 +102,7 @@ router.get("/", corsCollections, async (req, res, next) => {
   });
 
   if (!req.headers['accept'] || req.headers['accept'] === '*/*' || req.headers['accept'] === 'application/json') {
-    const collections = new ResourceCollection(products, {
+    const collections = new ProductResourceCollection(products, req, {
       paginationData: {
         total,
         page: parseInt(page as string),

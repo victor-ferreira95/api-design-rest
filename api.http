@@ -123,7 +123,7 @@ Authorization: Bearer {{ token }}
 ### 👉👉👉 Product Endpoints 👈👈👈
 
 ### OPTIONS /admin/products
-OPTIONS http://localhost:3000/admin/products/2
+OPTIONS http://localhost:3000/admin/products/
 
 ###
 

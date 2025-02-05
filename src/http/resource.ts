@@ -1,21 +1,46 @@
-export class Resource<T = object> {
-    constructor(protected data: T, protected meta?: any) { }
+export interface IResource {
+    toJson(): any
+}
+
+export type Link = {
+    href: string
+    method: string
+    type?: string
+}
+
+export class Resource implements IResource {
+    constructor(
+        protected data: any,
+        protected meta?: {
+            links?: { [key: string]: Link },
+            [key: string]: any
+        }) { }
 
     toJson() {
+        const { links, ...outherMeta } = this.meta || {};
+
         return {
             data: this.data,
-            ...(this.meta && { meta: this.meta })
+            _meta: {
+                ...outherMeta,
+                ...(links && { _links: links })
+            }
         }
     }
 }
 
-export class ResourceCollection<T> extends Resource<T[]> {
-    constructor(data: T[], meta?: { paginationData?: { total: number, page: number, limit: number }, [key: string]: any }) {
-        super(data, meta);
-    }
+export class ResourceCollection implements IResource {
+    constructor(
+        protected data: any[],
+        protected meta?: {
+            paginationData?: { total: number, page: number, limit: number },
+            links?: { [key: string]: Link },
+            [key: string]: any
+        }
+    ) { }
 
     toJson() {
-        const { paginationData, ...outherMeta } = this.meta || {};
+        const { paginationData, links, ...outherMeta } = this.meta || {};
 
         const meta = {
             ...outherMeta,
@@ -26,7 +51,11 @@ export class ResourceCollection<T> extends Resource<T[]> {
 
         return {
             data: this.data,
-            ...(meta && { meta })
+            _meta: {
+                ...meta,
+                ...(links && { _links: links }),
+            },
         }
     }
 }
+

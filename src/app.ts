@@ -13,7 +13,7 @@ import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import { createCustomerService, UserAlreadyExistsError } from "./services/customer.service";
 // import session from "express-session";
 import jwt from "jsonwebtoken";
-import { Resource } from "./http/resource";
+import { IResource } from "./http/resource";
 import { User } from "./entities/User";
 import { ValidationError } from "./errors";
 
@@ -197,8 +197,8 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   })
 });
 
-app.use(async (result: Resource, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (result instanceof Resource) {
+app.use(async (result: IResource, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if ('toJson' in result) {
     return res.json(result.toJson());
   }
 
