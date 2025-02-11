@@ -1,7 +1,10 @@
+version: '3.8'
+
 services:
-  app:
-    build: .
+  nginx:
+    build: .docker/nginx
+    restart: always
     ports:
-      - 3000:3000
+      - "4000:80"
     volumes:
-      - .:/home/node/app
+      - ./static:/var/www/html/static
