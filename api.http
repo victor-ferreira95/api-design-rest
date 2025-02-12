@@ -13,6 +13,9 @@ Content-Type: application/json
 
 @token = {{ jwt_login.response.body.token }}
 
+### Get me
+GET http://localhost:3000/jwt/me
+
 ### 👉👉👉 Session login 👈👈👈
 
 POST http://localhost:3000/session/login
