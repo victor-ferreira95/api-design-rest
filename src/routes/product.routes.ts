@@ -30,6 +30,16 @@ router.get("/", async (req, res) => {
       categories_slug,
     },
   });
+
+  // date por ser o updated_at da ultima listagem
+  // if(req.headers['if-modified-since'] === new Date().toUTCString()) {
+  //   res.set('Last-Modified', new Date().toUTCString());
+  //   res.set('Cache-Control', 'public, max-age=60');
+  //   res.status(304).end();
+  //   return
+  // }
+
+  // res.set('Last-Modified', new Date().toUTCString());
   res.json({ products, total });
 });
 
