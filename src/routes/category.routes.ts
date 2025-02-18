@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createCategoryService } from '../services/category.service';
 import cors from 'cors';
 import { defaultCorsOptions } from '../http/cors';
+import { responseCached } from '../http/response-cached';
 
 const router = Router();
 
@@ -21,6 +22,8 @@ router.get('/:categorySlug', corsItem, async (req, res) => {
   res.json(category);
 });
 
+// eTag = entity tag
+// O eTag é um identificador único usado para validar a cache de recursos HTTP, permitindo verificar se um recurso foi modificado.
 router.get('/', corsCollections, async (req, res) => {
   const categoryService = await createCategoryService();
   const { page = 1, limit = 10, name } = req.query;
@@ -30,8 +33,23 @@ router.get('/', corsCollections, async (req, res) => {
     filter: { name: name as string }
   });
 
-  res.set("Cache-Control", "public, max-age=30")
-  res.json({ categories, total });
+  return responseCached(
+    { res, body: { categories, total } },
+    {
+      maxAge: 30,
+      type: "public",
+      revalidate: "must-revalidate",
+    }
+  )
+
+  // Cache-Control: no-cache, no-store, must-revalidate
+  // Pragma: no-cache
+  // Expires: 0
+  // no-cache: me de os dados atualizado 
+  // no-store: não armazene em cache
+  // proxy-revalidate: revalidar o cache no nginx
+  // must-revalidate: revalidar o cache no cliente e nginx quando expirar
+  // if-none-match: eTag do recurso que está no cache
 });
 
 router.options("/:categorySlug", corsItem);

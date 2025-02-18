@@ -4,6 +4,7 @@ import { Router } from "express";
 import { createDatabaseConnection } from "../database";
 import jwt from "jsonwebtoken";
 import { defaultCorsOptions } from '../http/cors';
+import { responseCached } from '../http/response-cached';
 
 const router = Router();
 
@@ -46,10 +47,14 @@ router.get('/me',
       }
     })
 
-    // cahce provado, nao salva no nginx, server intermediario
-    res.set("Cache-Control", "private, max-age=30")
-
-    return res.send(user)
+    return responseCached(
+      { res, body: user },
+      {
+        maxAge: 60,
+        type: "private",
+        revalidate: "must-revalidate",
+      }
+   )
   })
 
 router.options("/me", cors({

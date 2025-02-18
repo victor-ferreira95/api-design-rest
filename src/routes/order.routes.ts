@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createOrderService } from '../services/order.service';
 import { Resource } from '../http/resource';
+import { responseCached } from '../http/response-cached';
 
 const router = Router();
 
@@ -43,7 +44,14 @@ router.get('/', async (req, res) => {
         limit: parseInt(limit as string),
         customerId
     });
-    res.json({ orders, total });
+    return responseCached({
+        res,
+        body: { orders, total }
+    }, {
+        maxAge: 30,
+        type: 'private',
+        revalidate: 'must-revalidate'
+    })
 });
 
 
